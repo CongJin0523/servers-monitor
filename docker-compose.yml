@@ -1,0 +1,18 @@
+services:
+  db:
+    ports:
+      - "3306:3306"
+    image: mysql:8.0.38
+    container_name: mysql_monitor
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: monitor
+    volumes:
+      - mysql_data:/var/lib/mysql
+  redis:
+    ports:
+      - "63679:6379"
+    container_name: redit_monitor
+
+volumes:
+  mysql_data:
