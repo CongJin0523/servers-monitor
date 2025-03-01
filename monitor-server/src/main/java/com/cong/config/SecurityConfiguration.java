@@ -6,15 +6,12 @@ import com.cong.entity.DTO.Account;
 import com.cong.entity.RestBean;
 import com.cong.entity.VO.response.AuthorizeVO;
 import com.cong.filter.JwtAuthorizeFilter;
-import com.cong.utils.Const;
-import com.cong.utils.CopyProperties;
 import com.cong.utils.JwtUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
@@ -44,6 +41,7 @@ public class SecurityConfiguration {
     return http
         .authorizeHttpRequests(conf -> conf
             .requestMatchers("/api/auth/**", "/error").permitAll()
+            .requestMatchers("/monitor/**").permitAll()
             .anyRequest().authenticated()
         )
         .formLogin(conf -> conf

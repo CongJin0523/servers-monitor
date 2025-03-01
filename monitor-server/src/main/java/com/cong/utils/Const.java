@@ -13,4 +13,7 @@ public class Const {
 
   public final static String ROLE_DEFAULT = "user";
 
+  //custom request attribute
+  public final static String ATTR_USER_ID = "id";
+  public final static String ATTR_CLIENT = "client";
 }

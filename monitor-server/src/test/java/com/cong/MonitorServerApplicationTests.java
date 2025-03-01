@@ -2,6 +2,7 @@ package com.cong;
 
 import com.cong.entity.DTO.Account;
 import com.cong.mapper.AccountMapper;
+import com.cong.utils.SecureRandom;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +22,12 @@ class MonitorServerApplicationTests {
   void mybatisTest(){
     Account account = accountMapper.selectById(1);
     System.out.println(account);
+  }
+
+  @Test
+  void ramdamId(){
+    int id = SecureRandom.generateRandomInt(10000000,90000000);
+    System.out.println(id);
   }
 
 }

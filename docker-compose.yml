@@ -10,9 +10,16 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
   redis:
+    image: redis
     ports:
-      - "63679:6379"
+      - "6379:6379"
     container_name: redit_monitor
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    container_name: rabbit_monitor
 
 volumes:
   mysql_data:

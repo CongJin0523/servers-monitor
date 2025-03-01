@@ -9,6 +9,7 @@ import com.cong.mapper.AccountMapper;
 import com.cong.service.AccountService;
 import com.cong.utils.Const;
 import com.cong.utils.FlowUtils;
+import com.cong.utils.SecureRandom;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -63,8 +64,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
       }
     }
 
-    Random random = new Random();
-    int verifyCode = random.nextInt(899999) + 100000;
+
+    int verifyCode = SecureRandom.generateRandomInt(100000,900000);
     Map<String, Object> data = Map.of("type", type, "email", email, "code", verifyCode);
     amqpTemplate.convertAndSend("emailQueue", data);
     stringRedisTemplate.opsForValue()
