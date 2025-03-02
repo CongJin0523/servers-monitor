@@ -2,6 +2,8 @@ package com.cong.utils;
 
 import com.cong.entity.ConnectionConfig;
 import com.cong.entity.Response;
+import com.cong.entity.SystemBaseDetail;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +54,33 @@ public class NetUtils {
     } catch (Exception e) {
       log.error("Error happening when getting a http requesting {} ",e.getMessage());
       return Response.error(e);
+    }
+  }
+
+
+  private Response doPost(String url, Object data) {
+    try {
+      String jsonData = jsonMapper.writeValueAsString(data);
+      HttpRequest request = HttpRequest.newBuilder()
+        .POST(HttpRequest.BodyPublishers.ofString(jsonData))
+        .uri(URI.create(connectionConfig.getAddress() + "/monitor" + url))
+        .header("Authorization", connectionConfig.getToken())
+        .header("Content-Type", "application/json")
+        .build();
+      HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+      return jsonMapper.readValue(response.body(), Response.class);
+    } catch (Exception e) {
+      log.error("Error happening when posting a http requesting {} ",e.getMessage());
+      return Response.error(e);
+    }
+  }
+
+  public void updateBaseDetail(SystemBaseDetail baseDetail) {
+    Response response = this.doPost("/detail", baseDetail);
+    if (response.success()) {
+      log.info("Successfully updateBaseDetail");
+    } else {
+      log.info("Failed to updateBaseDetail: {}", response.msg());
     }
   }
 }

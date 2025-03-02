@@ -39,6 +39,7 @@ public class JwtAuthorizeFilter extends OncePerRequestFilter {
     {
       if(!uri.endsWith("/register")) {
         Client client = clientService.findClientByToken(authorization);
+        System.out.println(client);
         if(client == null) {
           response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
           response.getWriter().write(RestBean.unauthorized("unregistered").toJsonString());

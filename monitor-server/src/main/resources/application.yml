@@ -7,6 +7,17 @@ spring:
     jwt:
       key: example
       expires: 168
+  web:
+    verify:
+      mail-limit: 60
+    flow:
+      period: 5
+      limit: 100
+      block: 30
+    cors:
+      origin: '*'
+      credentials: false
+      methods: '*'
   data:
     redis:
       host: localhost

@@ -16,4 +16,8 @@ public class Const {
   //custom request attribute
   public final static String ATTR_USER_ID = "id";
   public final static String ATTR_CLIENT = "client";
+
+  //filter order
+  public final static int ORDER_FLOW_LIMIT = -101;
+  public final static int ORDER_CORS = -102;
 }

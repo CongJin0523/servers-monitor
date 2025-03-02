@@ -50,7 +50,7 @@ public class ServerConfiguration {
       token = scanner.nextLine();
     } while (!netTool.registerToServer(address, token));
 
-    ConnectionConfig config = new ConnectionConfig(address, token);
+    ConnectionConfig config = new ConnectionConfig(token, address);
     this.saveConnectionConfigToFile(config);
     return config;
   }
@@ -68,6 +68,7 @@ public class ServerConfiguration {
       log.info("Save config file successfully");
     }
   }
+
   private ConnectionConfig getConnectionConfigFromFile() {
     log.info("Loading connection config from file...");
     File connectionConfigFile = new File("conf/server.json");

@@ -2,15 +2,21 @@ package com.cong.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cong.entity.DTO.Client;
+import com.cong.entity.DTO.ClientDetail;
+import com.cong.entity.VO.request.ClientDetailVO;
+import com.cong.mapper.ClientDetailMapper;
 import com.cong.mapper.ClientMapper;
 import com.cong.service.ClientService;
 import com.cong.utils.SecureRandom;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -24,6 +30,8 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper ,Client> impleme
   private final Map<Integer, Client> clientIdCache = new ConcurrentHashMap<>();
   private final Map<String, Client> clientTokenCache = new ConcurrentHashMap<>();
 
+  @Resource
+  private ClientDetailMapper clientDetailMapper;
   /**
    * init
    * add all client to cache
@@ -70,6 +78,18 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper ,Client> impleme
   @Override
   public Client findClientByToken(String token) {
     return this.clientTokenCache.get(token);
+  }
+
+  @Override
+  public void updateClientDetail(ClientDetailVO vo, Client client) {
+    ClientDetail clientDetail = new ClientDetail();
+    BeanUtils.copyProperties(vo, clientDetail);
+    clientDetail.setId(client.getId());
+    if(Objects.nonNull(clientDetailMapper.selectById(clientDetail.getId()))){
+      clientDetailMapper.updateById(clientDetail);
+    } else {
+      clientDetailMapper.insert(clientDetail);
+    }
   }
 
   /**

@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Component
-@Order(-101)
+@Order(Const.ORDER_FLOW_LIMIT)
 public class FlowLimitFilter extends HttpFilter {
 
   @Resource
@@ -32,11 +32,13 @@ public class FlowLimitFilter extends HttpFilter {
       this.writeBlockMessage(response);
     }
   }
+
   private void writeBlockMessage(HttpServletResponse resp) throws IOException {
     resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
     resp.setContentType("application/json;charset=utf-8");
     resp.getWriter().write(RestBean.forbidden("Request too frequently, Please try later.").toJsonString());
   }
+
   private boolean tryCount(String ip){
     synchronized (ip.intern()) {
       if(Boolean.TRUE.equals(stringRedisTemplate.hasKey(Const.FLOW_LIMIT_BLOCK + ip))){
