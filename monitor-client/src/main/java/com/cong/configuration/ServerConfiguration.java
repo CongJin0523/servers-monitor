@@ -1,6 +1,7 @@
 package com.cong.configuration;
 
 import com.cong.entity.ConnectionConfig;
+import com.cong.utils.MonitorUtils;
 import com.cong.utils.NetUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
@@ -23,7 +24,10 @@ public class ServerConfiguration {
   private NetUtils netTool;
 
   @Resource
-  ObjectMapper jsonMapper;
+  private MonitorUtils monitorUtils;
+
+  @Resource
+  private ObjectMapper jsonMapper;
 
   @Bean
   ConnectionConfig connectionConfig() {
@@ -32,6 +36,7 @@ public class ServerConfiguration {
     if (config == null) {
       config = this.registerToServer();
     }
+    System.out.println(monitorUtils.getSystemBaseDetail());
     return config;
   }
 
