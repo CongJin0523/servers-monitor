@@ -2,6 +2,7 @@ package com.cong.utils;
 
 import com.cong.entity.ConnectionConfig;
 import com.cong.entity.Response;
+import com.cong.entity.RuntimeDetail;
 import com.cong.entity.SystemBaseDetail;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -81,6 +82,12 @@ public class NetUtils {
       log.info("Successfully updateBaseDetail");
     } else {
       log.info("Failed to updateBaseDetail: {}", response.msg());
+    }
+  }
+  public void updateRuntimeDetails(RuntimeDetail detail) {
+    Response response = this.doPost("/runtime", detail);
+    if(!response.success()) {
+      log.warn("Failed to updateRunTimeDetail: {}", response.msg());
     }
   }
 }
