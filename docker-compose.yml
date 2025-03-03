@@ -20,6 +20,18 @@ services:
       - "15672:15672"
       - "5672:5672"
     container_name: rabbit_monitor
-
+  influx:
+    image: influxdb:2
+    ports:
+        - 8086:8086
+    volumes:
+        - type: volume
+          source: influxdb2-data
+          target: /var/lib/influxdb2
+        - type: volume
+          source: influxdb2-config
+          target: /etc/influxdb2
 volumes:
   mysql_data:
+  influxdb2-data:
+  influxdb2-config:

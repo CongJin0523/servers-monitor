@@ -3,10 +3,12 @@ package com.cong.controller;
 import com.cong.entity.DTO.Client;
 import com.cong.entity.RestBean;
 import com.cong.entity.VO.request.ClientDetailVO;
+import com.cong.entity.VO.request.RuntimeDetailVO;
 import com.cong.service.ClientService;
 import com.cong.utils.Const;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,6 +30,13 @@ public class ClientController {
   public RestBean<Void> clientBaseInfo( @RequestBody ClientDetailVO vo,
                                        @RequestAttribute(Const.ATTR_CLIENT) Client client) {
     clientService.updateClientDetail(vo, client);
+    return RestBean.success();
+  }
+
+  @PostMapping("/runtime")
+  public RestBean<Void> pdateRuntimeDetails(@RequestAttribute(Const.ATTR_CLIENT) Client client,
+                                            @RequestBody @Valid RuntimeDetailVO vo) {
+    clientService.updateRuntimeDetail(vo, client);
     return RestBean.success();
   }
 }

@@ -45,7 +45,11 @@ spring:
     port: 587
     username: ${cong.mail.username}
     password: ${cong.mail.password}
-
+  influx:
+    token: ${cong.influx.token}
+    url: ${cong.influx.url}
+    bucket: ${cong.influx.bucket}
+    org: ${cong.influx.org}
 logging:
   level:
     root: info
