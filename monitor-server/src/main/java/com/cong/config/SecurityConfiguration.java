@@ -6,6 +6,7 @@ import com.cong.entity.DTO.Account;
 import com.cong.entity.RestBean;
 import com.cong.entity.VO.response.AuthorizeVO;
 import com.cong.filter.JwtAuthorizeFilter;
+import com.cong.filter.RequestLogFilter;
 import com.cong.utils.JwtUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletException;
@@ -35,6 +36,8 @@ public class SecurityConfiguration {
 
   @Resource
   JwtAuthorizeFilter jwtAuthorizeFilter;
+  @Resource
+  RequestLogFilter requestLogFilter;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -61,7 +64,8 @@ public class SecurityConfiguration {
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(conf -> conf
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .addFilterBefore(jwtAuthorizeFilter, UsernamePasswordAuthenticationFilter.class)
+      .addFilterBefore(requestLogFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(jwtAuthorizeFilter, RequestLogFilter.class)
         .build();
   }
 
