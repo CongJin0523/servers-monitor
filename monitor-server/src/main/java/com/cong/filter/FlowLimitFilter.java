@@ -52,7 +52,7 @@ public class FlowLimitFilter extends HttpFilter {
   private boolean limitFrequencyCheck(String ip){
     if (stringRedisTemplate.hasKey(Const.FLOW_LIMIT_COUNTER + ip)) {
       Long count = Optional.ofNullable(stringRedisTemplate.opsForValue().increment(Const.FLOW_LIMIT_COUNTER + ip)).orElse(0L);
-      if (count > 20) {
+      if (count > 50) {
         stringRedisTemplate.opsForValue().set(Const.FLOW_LIMIT_BLOCK + ip, "", 60, TimeUnit.MINUTES);
         return false;
       }

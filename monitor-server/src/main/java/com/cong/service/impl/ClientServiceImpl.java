@@ -111,10 +111,7 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper ,Client> impleme
   private  Map<Integer, RuntimeDetailVO> currentRuntimes = new ConcurrentHashMap<>();
   @Override
   public void updateRuntimeDetail(@Valid RuntimeDetailVO vo, Client client) {
-    log.info("update runtime detail form client {}", client.getId() );
-    log.info("{}", vo);
     currentRuntimes.put(client.getId(), vo);
-
     influxDBUtils.writeRuntimeData(client.getId(), vo);
 
 
