@@ -4,6 +4,8 @@ import {useRoute} from "vue-router";
 import {ref, reactive} from "vue";
 import {get} from "@/net"
 import ClientDetails from "@/components/ClientDetails.vue";
+import RegisterCard from "@/components/RegisterCard.vue";
+import {Plus} from "@element-plus/icons-vue";
 
 
 const list = ref([])
@@ -27,24 +29,41 @@ const displayClientDetails = (id) => {
     detail.show = true
     detail.id = id
 }
+const register = reactive({
+    show: false,
+    token: ''
+})
 </script>
 
 <template>
     <div class="manage-main">
-        <div class="title"><i class="fa-solid fa-server"></i>
-            Servers
+        <div style="display: flex;justify-content: space-between;align-items: end">
+            <div>
+                <div class="title"><i class="fa-solid fa-server"></i>
+                    Servers
+                </div>
+                <div class="desc">
+                    Manage all registered servers instances here, monitor their real-time status, and quickly perform
+                    management
+                    and operations.
+                </div>
+            </div>
+            <div>
+                <el-button :icon="Plus" type="primary" plain @click="register.show = true">Add New Server</el-button>
+            </div>
         </div>
-        <div class="desc">
-            Manage all registered servers instances here, monitor their real-time status, and quickly perform management
-            and operations.
-        </div>
+
         <el-divider style="margin: 10px 0"/>
         <div class="card-list">
             <PreviewCard v-for="item in list" :data="item" :update="updateList" @click="displayClientDetails(item.id)"/>
         </div>
         <el-divider style="margin: 10px 0"/>
-        <el-drawer size="520" :show-close="false" v-model="detail.show" :with-header="false" v-if="list.length" @close="detail.id = -1" >
+        <el-drawer size="520" :show-close="false" v-model="detail.show" :with-header="false" v-if="list.length"
+                   @close="detail.id = -1">
             <ClientDetails :id="detail.id" :update="updateList"></ClientDetails>
+        </el-drawer>
+        <el-drawer :with-header="false" v-model="register.show" direction="btt" style="width: 600px; margin: 10px auto;" size="320">
+            <RegisterCard :token="register.token"></RegisterCard>
         </el-drawer>
     </div>
 </template>
