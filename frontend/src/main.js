@@ -5,6 +5,7 @@ import axios from 'axios'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import 'element-plus/theme-chalk/el-message.css'
 import 'element-plus/dist/index.css'
+import '@/assets/css/element.less'
 import 'flag-icon-css/css/flag-icons.min.css'
 axios.defaults.baseURL = 'http://127.0.0.1:8080'
 
