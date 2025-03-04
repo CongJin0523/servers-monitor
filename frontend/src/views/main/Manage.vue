@@ -3,6 +3,7 @@ import PreviewCard from "@/components/PreviewCard.vue";
 import {useRoute} from "vue-router";
 import {ref, reactive} from "vue";
 import {get} from "@/net"
+import ClientDetails from "@/components/ClientDetails.vue";
 
 
 const list = ref([])
@@ -42,7 +43,9 @@ const displayClientDetails = (id) => {
             <PreviewCard v-for="item in list" :data="item" :update="updateList" @click="displayClientDetails(item.id)"/>
         </div>
         <el-divider style="margin: 10px 0"/>
-        <el-drawer size="520" :show-close="false" v-model="detail.show" :with-header="false" v-if="list.length>0" @close="detail.id = -1" />
+        <el-drawer size="520" :show-close="false" v-model="detail.show" :with-header="false" v-if="list.length" @close="detail.id = -1" >
+            <ClientDetails :id="detail.id" :update="updateList"></ClientDetails>
+        </el-drawer>
     </div>
 </template>
 
