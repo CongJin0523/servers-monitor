@@ -6,20 +6,18 @@ import com.cong.utils.NetUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Scanner;
 
 @Configuration
 @Slf4j
 public class ServerConfiguration {
+
   @Resource
   private NetUtils netTool;
 
@@ -29,6 +27,7 @@ public class ServerConfiguration {
   @Resource
   private ObjectMapper jsonMapper;
 
+
   @Bean
   ConnectionConfig connectionConfig() {
     log.info("Loading server connection config...");
@@ -36,21 +35,32 @@ public class ServerConfiguration {
     if (config == null) {
       config = this.registerToServer();
     }
-    System.out.println(monitorUtils.getSystemBaseDetail());
     return config;
   }
 
+
   private ConnectionConfig registerToServer() {
+    log.info("Loading connection config from input...");
     Scanner scanner = new Scanner(System.in);
-    String token, address;
+    String token, address,  IFname;
     do {
       log.info("Please enter server address, for example 'http://192.168.0.2:8080");
       address = scanner.nextLine();
       log.info("Please enter the token given by server");
       token = scanner.nextLine();
+      List<String> networkInterface = monitorUtils.listNetworkInterfaceName();
+      if(networkInterface.size() > 1) {
+        log.info("Found network interfaces: {}", networkInterface);
+        do {
+          log.info("Please enter the name of the network interface");
+          IFname = scanner.nextLine();
+        } while (!networkInterface.contains(IFname));
+      } else {
+        IFname = networkInterface.get(0);
+      }
     } while (!netTool.registerToServer(address, token));
 
-    ConnectionConfig config = new ConnectionConfig(token, address);
+    ConnectionConfig config = new ConnectionConfig(token, address, IFname);
     this.saveConnectionConfigToFile(config);
     return config;
   }

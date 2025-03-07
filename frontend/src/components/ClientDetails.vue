@@ -1,26 +1,64 @@
 <script setup>
 import {watch, reactive, computed} from "vue";
-import {get} from "@/net"
+import {get, post} from "@/net"
 import {copyIp, cpuNameToImage, fitByUnit, osNameToIcon, percentageToStatus, rename} from '@/tools'
-import {Money} from "@element-plus/icons-vue";
 import RuntimeHistory from "@/components/RuntimeHistory.vue";
+import {ElMessage, ElMessageBox} from "element-plus";
+import {Connection, Delete} from "@element-plus/icons-vue";
 
+const locations = [
+    {name: 'cn', desc: 'China'},
+    {name: 'hk', desc: 'HongKong'},
+    {name: 'jp', desc: 'Japan'},
+    {name: 'us', desc: 'US'},
+    {name: 'sg', desc: 'Singapore'},
+    {name: 'kr', desc: 'Korea'},
+    {name: 'de', desc: 'Germany'},
+    {name: 'dk', desc: 'Denmark'}
+]
 const props = defineProps({
     id: Number,
     update: Function,
 })
 
+const emits = defineEmits(['delete', 'terminal'])
+
 const details = reactive({
     base: {},
     runtime: {
         list: []
-    }
+    },
+    editNode: false
 })
+
+const nodeEdit = reactive({
+    name: '',
+    location: ''
+})
+
+const submitNodeEdit = () => {
+    post('/api/monitor/node', {
+        id: props.id,
+        node: nodeEdit.name,
+        location: nodeEdit.location
+    }, () => {
+        details.editNode = false
+        updateDetails()
+        ElMessage.success('Info of Node Updated')
+    })
+}
+
+const enableNodeEdit = () => {
+    details.editNode = true
+    nodeEdit.name = details.base.node
+    nodeEdit.location = details.base.location
+}
 
 function updateDetails() {
     props.update()
     init(props.id)
 }
+
 let timer = setInterval(() => {
     if(props.id !== -1 && details.runtime) {
         get(`/api/monitor/runtime-now?clientId=${props.id}`, data => {
@@ -47,7 +85,20 @@ const init = id => {
 watch(() => props.id, init, { immediate: true })
 
 
-
+function deleteClient() {
+    ElMessageBox.confirm('All data will loss after deleting. Are you sure want to do that?', 'Delete Server', {
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+    }).then(() => {
+        get(`/api/monitor/delete?clientId=${props.id}`, () => {
+            emits('delete')
+            props.update()
+            ElMessage.success('The server has been deleted successfully.')
+        })
+    }).catch(() => {
+    })
+}
 </script>
 
 
@@ -59,6 +110,12 @@ watch(() => props.id, init, { immediate: true })
                     <div class="title">
                         <i class="fa-solid fa-server"></i>
                         Server Info
+                    </div>
+                    <div>
+                        <el-button :icon="Connection" type="info"
+                                   @click="emits('terminal', id)" plain text>SSH</el-button>
+                        <el-button :icon="Delete" type="danger" style="margin-left: 0"
+                                   @click="deleteClient" plain text>Delete</el-button>
                     </div>
                 </div>
                 <el-divider style="margin: 10px 0"/>
@@ -91,19 +148,19 @@ watch(() => props.id, init, { immediate: true })
                     <div v-else>
                         <span>Server Node</span>
                         <div style="display: inline-block;height: 15px">
-                            <!--                        <div style="display: flex">-->
-                            <!--                            <el-select v-model="nodeEdit.location" style="width: 80px" size="small">-->
-                            <!--                                <el-option v-for="item in locations" :value="item.name">-->
-                            <!--                                    <span :class="`flag-icon flag-icon-${item.name}`"></span>&nbsp;-->
-                            <!--                                    {{item.desc}}-->
-                            <!--                                </el-option>-->
-                            <!--                            </el-select>-->
-                            <!--                            <el-input v-model="nodeEdit.name" style="margin-left: 10px"-->
-                            <!--                                      size="small" placeholder="Please enter node name..."/>-->
-                            <!--                            <div style="margin-left: 10px">-->
-                            <!--                                <i @click.stop="submitNodeEdit" class="fa-solid fa-check interact-item"/>-->
-                            <!--                            </div>-->
-                            <!--                        </div>-->
+                                                    <div style="display: flex">
+                                                        <el-select v-model="nodeEdit.location" style="width: 80px" size="small">
+                                                            <el-option v-for="item in locations" :value="item.name">
+                                                                <span :class="`flag-icon flag-icon-${item.name}`"></span>&nbsp;
+                                                                {{item.desc}}
+                                                            </el-option>
+                                                        </el-select>
+                                                        <el-input v-model="nodeEdit.name" style="margin-left: 10px"
+                                                                  size="small" placeholder="Please enter node name..."/>
+                                                        <div style="margin-left: 10px">
+                                                            <i @click.stop="submitNodeEdit" class="fa-solid fa-check interact-item"/>
+                                                        </div>
+                                                    </div>
                         </div>
                     </div>
                     <div>

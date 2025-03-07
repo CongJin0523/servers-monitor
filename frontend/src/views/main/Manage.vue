@@ -1,13 +1,23 @@
 <script setup>
 import PreviewCard from "@/components/PreviewCard.vue";
 import {useRoute} from "vue-router";
-import {ref, reactive} from "vue";
+import {ref, reactive, computed} from "vue";
 import {get} from "@/net"
 import ClientDetails from "@/components/ClientDetails.vue";
 import RegisterCard from "@/components/RegisterCard.vue";
 import {Plus} from "@element-plus/icons-vue";
 
-
+const locations = [
+    {name: 'cn', desc: 'China'},
+    {name: 'hk', desc: 'HongKong'},
+    {name: 'jp', desc: 'Japan'},
+    {name: 'us', desc: 'US'},
+    {name: 'sg', desc: 'Singapore'},
+    {name: 'kr', desc: 'Korea'},
+    {name: 'de', desc: 'Germany'},
+    {name: 'dk', desc: 'Denmark'}
+]
+const checkedNodes = ref([])
 const list = ref([])
 const route = useRoute()
 const updateList = () => {
@@ -18,6 +28,8 @@ const updateList = () => {
         })
     }
 }
+
+
 setInterval(updateList, 10000)
 updateList()
 
@@ -29,10 +41,19 @@ const displayClientDetails = (id) => {
     detail.show = true
     detail.id = id
 }
+const clientList = computed(() => {
+    if(checkedNodes.value.length === 0) {
+        return list.value
+    } else {
+        return list.value.filter(item => checkedNodes.value.indexOf(item.location) >= 0)
+    }
+})
+
 const register = reactive({
     show: false,
     token: ''
 })
+const refreshToken = () => get('/api/monitor/register', token => {register.token = token})
 </script>
 
 <template>
@@ -54,15 +75,24 @@ const register = reactive({
         </div>
 
         <el-divider style="margin: 10px 0"/>
-        <div class="card-list">
-            <PreviewCard v-for="item in list" :data="item" :update="updateList" @click="displayClientDetails(item.id)"/>
+        <div style="margin-bottom: 20px">
+            <el-checkbox-group v-model="checkedNodes">
+                <el-checkbox v-for="node in locations" :key="node" :label="node.name" border>
+                    <span :class="`flag-icon flag-icon-${node.name}`"></span>
+                    <span style="font-size: 13px;margin-left: 10px">{{node.desc}}</span>
+                </el-checkbox>
+            </el-checkbox-group>
         </div>
+        <div class="card-list" v-if="clientList.length">
+            <PreviewCard v-for="item in clientList" :data="item" :update="updateList" @click="displayClientDetails(item.id)"/>
+        </div>
+        <el-empty description="No any servers, click the top right button to add a new server instantly." v-else/>
         <el-divider style="margin: 10px 0"/>
         <el-drawer size="520" :show-close="false" v-model="detail.show" :with-header="false" v-if="list.length"
                    @close="detail.id = -1">
-            <ClientDetails :id="detail.id" :update="updateList"></ClientDetails>
+            <ClientDetails :id="detail.id" :update="updateList" @delete="updateList"></ClientDetails>
         </el-drawer>
-        <el-drawer :with-header="false" v-model="register.show" direction="btt" style="width: 600px; margin: 10px auto;" size="320">
+        <el-drawer @open="refreshToken" :with-header="false" v-model="register.show" direction="btt" style="width: 600px; margin: 10px auto;" size="400">
             <RegisterCard :token="register.token"></RegisterCard>
         </el-drawer>
     </div>

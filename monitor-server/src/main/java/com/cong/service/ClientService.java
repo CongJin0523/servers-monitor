@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.cong.entity.DTO.Client;
 import com.cong.entity.VO.request.ClientDetailVO;
 import com.cong.entity.VO.request.RenameClientVO;
+import com.cong.entity.VO.request.RenameNodeVO;
 import com.cong.entity.VO.request.RuntimeDetailVO;
+import com.cong.entity.VO.response.ClientSimpleVO;
 import com.cong.entity.VO.response.RuntimeHistoryVO;
 import com.cong.entity.VO.response.ClientDetailsVO;
 import com.cong.entity.VO.response.ClientPreviewVO;
@@ -31,4 +33,10 @@ public interface ClientService extends IService<Client> {
 
   RuntimeHistoryVO clientRuntimeDetailsHistory(int clientId);
   RuntimeDetailVO clientRuntimeDetailsNow(int clientId);
+
+  void deleteClient(int clientId);
+
+  void updateNode(@Valid RenameNodeVO vo);
+
+  List<ClientSimpleVO> getSimpleList();
 }

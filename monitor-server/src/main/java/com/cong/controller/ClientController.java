@@ -7,7 +7,6 @@ import com.cong.entity.VO.request.RuntimeDetailVO;
 import com.cong.service.ClientService;
 import com.cong.utils.Const;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,8 +33,8 @@ public class ClientController {
   }
 
   @PostMapping("/runtime")
-  public RestBean<Void> pdateRuntimeDetails(@RequestAttribute(Const.ATTR_CLIENT) Client client,
-                                            @RequestBody @Valid RuntimeDetailVO vo) {
+  public RestBean<Void> updateRuntimeDetails(@RequestAttribute(Const.ATTR_CLIENT) Client client,
+                                             @RequestBody @Valid RuntimeDetailVO vo) {
     clientService.updateRuntimeDetail(vo, client);
     return RestBean.success();
   }

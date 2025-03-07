@@ -30,6 +30,10 @@ public class EmailQueueListener {
         createSimpleMailMessage("Password Reset Code",
             "Your Password Reset Code: " + code + "\n" + "\n" + "Enter this code on the password reset page to set a new password.",
             email);
+      case Const.Change_EAMIL ->
+        createSimpleMailMessage("Change Email Code",
+          "Your validation Code: " + code + "\n" + "\n" + "Enter this code on the change email page to set a new email.",
+          email);
       default -> null;
     };
     if (message!=null) {

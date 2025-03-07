@@ -41,18 +41,26 @@ public class JwtUtils {
     return false;
   }
 
-  public boolean deleteJWT (String uuid, Date date) {
-    if (this.isValidJWT(uuid)) {
+  /**
+   * when user logout, add the jwtToken to blackList in redis
+   * @param uid
+   * @param date
+   * @return
+   */
+  public boolean deleteJWT (String uid, Date date) {
+    if (this.isValidJWT(uid)) {
       Date now = new Date();
       long ttl = Math.max(date.getTime() - now.getTime(), 0);
-      stringRedisTemplate.opsForValue().set(Const.JWT_BLACK_LIST + uuid, "", ttl, TimeUnit.MILLISECONDS);
+      stringRedisTemplate.opsForValue().set(Const.JWT_BLACK_LIST + uid, "", ttl, TimeUnit.MILLISECONDS);
       return true;
     }
     return false;
   }
 
-  public boolean isValidJWT (String uuid) {
-    return !stringRedisTemplate.hasKey(Const.JWT_BLACK_LIST + uuid);
+
+
+  public boolean isValidJWT (String uid) {
+    return !stringRedisTemplate.hasKey(Const.JWT_BLACK_LIST + uid);
   }
 
   // get the decoded Jwt from the request header
@@ -63,7 +71,7 @@ public class JwtUtils {
     JWTVerifier verifier = JWT.require(algorithm).build();
     try {
       DecodedJWT jwt = verifier.verify(token);
-      if (!this.isValidJWT(jwt.getId())) return null;
+      if (!(this.isValidJWT(jwt.getId()) || (this.isValidUser(jwt.getId())))) return null;
       Date expiresAt = jwt.getExpiresAt();
       return new Date().after(expiresAt) ? null : jwt;
     } catch (JWTVerificationException e) {
@@ -109,5 +117,14 @@ public class JwtUtils {
       return null;
     }
     return token.substring(7);
+  }
+
+  // when a user delete by Admit, which means that he cannot use JWT again
+  public void deleteUser(int uid) {
+    stringRedisTemplate.opsForValue().set(Const.USER_BLACK_LIST + uid, "", expires, TimeUnit.HOURS);
+  }
+
+  private boolean isValidUser(String uid) {
+    return !stringRedisTemplate.hasKey(Const.USER_BLACK_LIST + uid);
   }
 }
