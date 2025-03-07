@@ -7,6 +7,7 @@ import com.cong.entity.RestBean;
 import com.cong.entity.VO.response.AuthorizeVO;
 import com.cong.filter.JwtAuthorizeFilter;
 import com.cong.filter.RequestLogFilter;
+import com.cong.utils.Const;
 import com.cong.utils.JwtUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletException;
@@ -45,7 +46,8 @@ public class SecurityConfiguration {
         .authorizeHttpRequests(conf -> conf
             .requestMatchers("/api/auth/**", "/error").permitAll()
             .requestMatchers("/monitor/**").permitAll()
-            .anyRequest().authenticated()
+            .requestMatchers("/api/user/sub/**").hasRole(Const.ROLE_ADMIN)
+            .anyRequest().hasAnyRole(Const.ROLE_ADMIN, Const.ROLE_DEFAULT)
         )
         .formLogin(conf -> conf
             .loginProcessingUrl("/api/auth/login")

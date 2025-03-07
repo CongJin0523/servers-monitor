@@ -42,7 +42,7 @@ public class CorsFilter extends HttpFilter {
   }
 
   private String resolveMethod(){
-    return methods.equals("*") ? "GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE, PATCH" : methods;
+    return methods.equals("*") ? "GET, POST, PUT" : methods;
   }
 
   private String resolveOrigin(HttpServletRequest request){

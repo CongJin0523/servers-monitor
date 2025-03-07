@@ -29,7 +29,7 @@ public class AuthorizeController {
 
   @GetMapping("/verify-code")
   public RestBean<?> verifyCode(@RequestParam("email") @Email @NotEmpty String email,
-                                @RequestParam("type") @Pattern(regexp = "(" + Const.RESET_EMAIL + ")") String type,
+                                @RequestParam("type") @Pattern(regexp = "(" + Const.RESET_EMAIL + "|" + Const.Change_EAMIL+ ")") String type,
                                 HttpServletRequest request) {
     log.info("Get verify code with email:{},type:{}", email, type);
     return this.resultHandle(() -> accountService.verifyCode(type, email, request.getRemoteAddr()));

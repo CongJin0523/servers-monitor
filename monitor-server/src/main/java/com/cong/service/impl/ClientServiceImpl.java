@@ -6,7 +6,9 @@ import com.cong.entity.DTO.Client;
 import com.cong.entity.DTO.ClientDetail;
 import com.cong.entity.VO.request.ClientDetailVO;
 import com.cong.entity.VO.request.RenameClientVO;
+import com.cong.entity.VO.request.RenameNodeVO;
 import com.cong.entity.VO.request.RuntimeDetailVO;
+import com.cong.entity.VO.response.ClientSimpleVO;
 import com.cong.entity.VO.response.RuntimeHistoryVO;
 import com.cong.entity.VO.response.ClientDetailsVO;
 import com.cong.entity.VO.response.ClientPreviewVO;
@@ -14,6 +16,7 @@ import com.cong.mapper.ClientDetailMapper;
 import com.cong.mapper.ClientMapper;
 import com.cong.service.ClientService;
 import com.cong.utils.InfluxDBUtils;
+import com.cong.utils.JwtUtils;
 import com.cong.utils.SecureRandom;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -32,6 +35,8 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class ClientServiceImpl extends ServiceImpl<ClientMapper ,Client> implements ClientService {
+
+
 
   private String registerToken = SecureRandom.generateRandomString(24);
   /**
@@ -133,6 +138,16 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper ,Client> impleme
         return vo;
       }).collect(Collectors.toList());
   }
+  @Override
+  public List<ClientSimpleVO> getSimpleList(){
+    return clientIdCache.values().stream()
+      .map(client -> {
+        ClientSimpleVO vo = new ClientSimpleVO();
+        BeanUtils.copyProperties(client, vo);
+        BeanUtils.copyProperties(clientDetailMapper.selectById(client.getId()), vo);
+        return vo;
+      }).collect(Collectors.toList());
+  }
 
   @Override
   public void renameClient(@Valid RenameClientVO vo){
@@ -159,6 +174,24 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper ,Client> impleme
   @Override
   public RuntimeDetailVO clientRuntimeDetailsNow(int clientId){
     return currentRuntimes.get(clientId);
+  }
+
+  @Override
+  public void deleteClient(int clientId){
+    this.removeById(clientId);
+    clientDetailMapper.deleteById(clientId);
+
+    this.init();
+    currentRuntimes.remove(clientId);
+
+  }
+
+  @Override
+  public void updateNode(@Valid RenameNodeVO vo){
+    this.update(Wrappers.<Client>update().eq("id", vo.getId())
+      .set("node", vo.getNode())
+      .set("location", vo.getLocation()));
+    this.init();
   }
   private boolean isOnline(RuntimeDetailVO runtime){
     return runtime != null && System.currentTimeMillis() - runtime.getTimestamp() < 60 * 1000;

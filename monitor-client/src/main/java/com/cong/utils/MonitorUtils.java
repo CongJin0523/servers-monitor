@@ -1,8 +1,12 @@
 package com.cong.utils;
 
+import com.cong.entity.ConnectionConfig;
 import com.cong.entity.RuntimeDetail;
 import com.cong.entity.SystemBaseDetail;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
@@ -12,6 +16,7 @@ import oshi.hardware.NetworkIF;
 import oshi.software.os.OperatingSystem;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.*;
@@ -20,9 +25,14 @@ import java.util.*;
 @Slf4j
 public class MonitorUtils {
 
+
+
   private final SystemInfo si = new SystemInfo();
   private final Properties prop = System.getProperties();
 
+  @Lazy
+  @Resource
+  ConnectionConfig config;
 
   public SystemBaseDetail getSystemBaseDetail() {
     OperatingSystem os = si.getOperatingSystem();
@@ -37,39 +47,40 @@ public class MonitorUtils {
       .setOsVersion(os.getVersionInfo().getVersion())
       .setOsBit(os.getBitness())
       .setCpuName(hal.getProcessor().getProcessorIdentifier().getName())
-      .setCpuCore(hal.getProcessor().getLogicalProcessorCount())
+      .setCpuCore(hal.getProcessor().getPhysicalProcessorCount())
       .setMemory(memory)
       .setDisk(diskSize)
       .setIp(ipAddress);
   }
 
+  public List<String> listNetworkInterfaceName() {
+    HardwareAbstractionLayer hardware = si.getHardware();
+    return hardware.getNetworkIFs()
+      .stream()
+      .map(NetworkIF::getName)
+      .toList();
+  }
+
   private NetworkIF getNetworkIF(HardwareAbstractionLayer hal) {
-
-      List<NetworkIF> networkIFList = hal.getNetworkIFs().stream()
-        .filter(networkIF -> {
-          NetworkInterface ni = networkIF.queryNetworkInterface();
-          try {
-            return ni != null && !ni.isLoopback() && !ni.isPointToPoint() && !ni.isVirtual()
-              && (ni.getName().startsWith("eth") || ni.getName().startsWith("en"));
-          } catch (SocketException e) {
-            log.error("Fail to read the network info, error {}", e.getMessage());
-            return false;
-          }
-        })
-        .filter(networkIF -> {
-          return networkIF.getIPv4addr() != null && networkIF.getIPv4addr().length > 0;
-        })
+    try {
+      String target = config.getNetworkInterface();
+      List<NetworkIF> ifs = hal.getNetworkIFs()
+        .stream()
+        .filter(inter -> inter.getName().equals(target))
         .toList();
-
-      if (networkIFList.isEmpty()) {
-        return null;
+      if (!ifs.isEmpty()) {
+        return ifs.get(0);
       } else {
-        return networkIFList.get(0);
+        throw new IOException("Network adaptor name is incorrect，cannot find it: " + target);
       }
+    } catch (IOException e) {
+      log.error("Error reading network interface information.", e);
+    }
+    return null;
   }
 
   public RuntimeDetail getRuntimeDetail() {
-    double statisticTime = 0.5;
+    double statisticTime = 1.0;
     try {
       HardwareAbstractionLayer hal = si.getHardware();
       NetworkIF networkIF = Objects.requireNonNull(this.getNetworkIF(hal));
@@ -108,7 +119,7 @@ public class MonitorUtils {
         .setTimestamp(new Date().getTime());
 
     } catch (Exception e) {
-      log.error("Fail to read the runtime info, error {}", e.getMessage());
+      log.error("Fail to read the runtime info, error", e);
     }
     return null;
   }
@@ -134,4 +145,5 @@ public class MonitorUtils {
     long totalCpu = cUser + nice + cSys + idle + ioWait + irq + softIrq + steal;
     return (cSys + cUser) * 1.0 / totalCpu;
   }
+
 }
