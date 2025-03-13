@@ -2,14 +2,8 @@ package com.cong.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cong.entity.DTO.Client;
-import com.cong.entity.VO.request.ClientDetailVO;
-import com.cong.entity.VO.request.RenameClientVO;
-import com.cong.entity.VO.request.RenameNodeVO;
-import com.cong.entity.VO.request.RuntimeDetailVO;
-import com.cong.entity.VO.response.ClientSimpleVO;
-import com.cong.entity.VO.response.RuntimeHistoryVO;
-import com.cong.entity.VO.response.ClientDetailsVO;
-import com.cong.entity.VO.response.ClientPreviewVO;
+import com.cong.entity.VO.request.*;
+import com.cong.entity.VO.response.*;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -39,4 +33,8 @@ public interface ClientService extends IService<Client> {
   void updateNode(@Valid RenameNodeVO vo);
 
   List<ClientSimpleVO> getSimpleList();
+
+  void saveClientSshConnection(@Valid SshConnectionVO vo);
+
+  SshSettingsVO sshSettings(int clientId);
 }

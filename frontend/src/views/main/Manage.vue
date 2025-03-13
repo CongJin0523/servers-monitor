@@ -6,6 +6,7 @@ import {get} from "@/net"
 import ClientDetails from "@/components/ClientDetails.vue";
 import RegisterCard from "@/components/RegisterCard.vue";
 import {Plus} from "@element-plus/icons-vue";
+import TerminalWindow from "@/components/TerminalWindow.vue";
 
 const locations = [
     {name: 'cn', desc: 'China'},
@@ -48,7 +49,15 @@ const clientList = computed(() => {
         return list.value.filter(item => checkedNodes.value.indexOf(item.location) >= 0)
     }
 })
-
+function openTerminal(id) {
+    terminal.show = true
+    terminal.id = id
+    detail.show = false
+}
+const terminal = reactive({
+    show: false,
+    id: -1
+})
 const register = reactive({
     show: false,
     token: ''
@@ -90,10 +99,23 @@ const refreshToken = () => get('/api/monitor/register', token => {register.token
         <el-divider style="margin: 10px 0"/>
         <el-drawer size="520" :show-close="false" v-model="detail.show" :with-header="false" v-if="list.length"
                    @close="detail.id = -1">
-            <ClientDetails :id="detail.id" :update="updateList" @delete="updateList"></ClientDetails>
+            <ClientDetails :id="detail.id" :update="updateList" @delete="updateList" @terminal="openTerminal"></ClientDetails>
         </el-drawer>
         <el-drawer @open="refreshToken" :with-header="false" v-model="register.show" direction="btt" style="width: 600px; margin: 10px auto;" size="400">
             <RegisterCard :token="register.token"></RegisterCard>
+        </el-drawer>
+        <el-drawer style="width: 800px" :size="520" direction="btt"
+                   @close="terminal.id = -1"
+                   v-model="terminal.show" :close-on-click-modal="false">
+            <template #header>
+                <div>
+                    <div style="font-size: 18px;color: dodgerblue;font-weight: bold;">SSH</div>
+                    <div style="font-size: 14px">
+                        Connecting through service
+                    </div>
+                </div>
+            </template>
+            <TerminalWindow :id="terminal.id"/>
         </el-drawer>
     </div>
 </template>

@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@TableName("`db_account`")
+@TableName(value = "`db_account`", autoResultMap = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Account implements BaseData {
