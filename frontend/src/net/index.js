@@ -1,6 +1,6 @@
 import axios from "axios";
 import {ElMessage} from "element-plus";
-
+import {useStore} from "@/store";
 const authItemName = "access_token";
 const defaultFailure = (url, code, message) => {
     console.warn(`Failed to retrieve url ${url}, code ${code}, message ${message}`);
@@ -101,6 +101,10 @@ function login(username, password, remember, success, failure = defaultFailure, 
         'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
     }, (data) => {
         storeAccessToken(data.token, remember, data.expire);
+        const store = useStore();
+        store.user.role = data.role
+        store.user.username = data.username
+        store.user.email = data.email
         ElMessage({
             message: `login success, welcome to ${data.username}!`,
             type: "success",

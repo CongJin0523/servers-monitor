@@ -35,7 +35,7 @@ const emailForm = reactive({
 })
 
 const coldTime = ref(0)
-const isEmailValid = ref(true)
+const isEmailValid = ref(false)
 
 const onEmailValidate = (prop, isValid) => {
     if(prop === 'email')
@@ -99,6 +99,7 @@ const simpleList = ref([])
 
 
 const accounts = ref([])
+
 const initSubAccounts = () =>
     get('/api/user/sub/list', list => {accounts.value = list;
 console.info(accounts.value);})
@@ -117,11 +118,8 @@ if(store.isAdmin) {
         initSubAccounts()
     })
 }
-console.info(store);
-get('/api/monitor/simple-list', list => {
-    simpleList.value = list
-    initSubAccounts()
-})
+console.log(store)
+
 </script>
 
 <template>
@@ -168,7 +166,7 @@ get('/api/monitor/simple-list', list => {
                             <el-col :span="10">
                                 <el-button type="success" @click="validateEmail" style="width: 100%;"
                                            :disabled="!isEmailValid || coldTime > 0">
-                                    {{coldTime > 0 ? `Try again after ${coldTime} Sec `  : 'Get Code'}}
+                                    {{coldTime > 0 ? ` ${coldTime} Sec `  : 'Get Code'}}
                                 </el-button>
                             </el-col>
                         </el-row>
@@ -191,7 +189,7 @@ get('/api/monitor/simple-list', list => {
                         <div>
                             <span>{{item.username}}</span>
                             <span style="font-size: 13px;color: grey;margin-left: 5px">
-<!--                Manage {{item.clientList.length}} Servers-->
+                Manage {{item.clients.length}} Servers
               </span>
                         </div>
                         <div style="font-size: 13px;color: grey">{{item.email}}</div>

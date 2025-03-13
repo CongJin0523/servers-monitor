@@ -4,16 +4,12 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cong.entity.DTO.Client;
 import com.cong.entity.DTO.ClientDetail;
-import com.cong.entity.VO.request.ClientDetailVO;
-import com.cong.entity.VO.request.RenameClientVO;
-import com.cong.entity.VO.request.RenameNodeVO;
-import com.cong.entity.VO.request.RuntimeDetailVO;
-import com.cong.entity.VO.response.ClientSimpleVO;
-import com.cong.entity.VO.response.RuntimeHistoryVO;
-import com.cong.entity.VO.response.ClientDetailsVO;
-import com.cong.entity.VO.response.ClientPreviewVO;
+import com.cong.entity.DTO.ClientSsh;
+import com.cong.entity.VO.request.*;
+import com.cong.entity.VO.response.*;
 import com.cong.mapper.ClientDetailMapper;
 import com.cong.mapper.ClientMapper;
+import com.cong.mapper.SshMapper;
 import com.cong.service.ClientService;
 import com.cong.utils.InfluxDBUtils;
 import com.cong.utils.JwtUtils;
@@ -42,19 +38,25 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper ,Client> impleme
   /**
    * to save all client info
     */
+
   private final Map<Integer, Client> clientIdCache = new ConcurrentHashMap<>();
   private final Map<String, Client> clientTokenCache = new ConcurrentHashMap<>();
 
   @Resource
   private ClientDetailMapper clientDetailMapper;
-  /**
-   * init
-   * add all client to cache
-   */
+
 
   @Resource
   private InfluxDBUtils influxDBUtils;
 
+  @Resource
+  private SshMapper sshMapper;
+
+
+  /**
+   * init
+   * add all client to cache
+   */
   @PostConstruct
   public void init() {
     clientIdCache.clear();
@@ -193,6 +195,34 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper ,Client> impleme
       .set("location", vo.getLocation()));
     this.init();
   }
+
+  @Override
+  public void saveClientSshConnection(@Valid SshConnectionVO vo){
+    Client client = clientIdCache.get(vo.getId());
+    if(client == null) return;
+    ClientSsh ssh = new ClientSsh();
+    BeanUtils.copyProperties(vo, ssh);
+    if(Objects.nonNull(sshMapper.selectById(client.getId()))) {
+      sshMapper.updateById(ssh);
+    } else {
+      sshMapper.insert(ssh);
+    }
+  }
+
+  @Override
+  public SshSettingsVO sshSettings(int clientId){
+    ClientDetail detail = clientDetailMapper.selectById(clientId);
+    ClientSsh ssh = sshMapper.selectById(clientId);
+    SshSettingsVO vo;
+    if(ssh == null) {
+      vo = new SshSettingsVO();
+    } else {
+      vo = ssh.toObject(SshSettingsVO.class);
+    }
+    vo.setIp(detail.getIp());
+    return vo;
+  }
+
   private boolean isOnline(RuntimeDetailVO runtime){
     return runtime != null && System.currentTimeMillis() - runtime.getTimestamp() < 60 * 1000;
   }

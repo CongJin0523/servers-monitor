@@ -140,6 +140,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     Account account = new Account();
     BeanUtils.copyProperties(vo, account);
+    account.setPassword(passwordEncoder.encode(vo.getPassword()));
     account.setRole(Const.ROLE_DEFAULT);
     account.setRegisterTime(new Date());
     this.save(account);
@@ -157,6 +158,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
   public List<SubAccountVO> listSubAccount() {
     return this.list(Wrappers.<Account>query().eq("role", Const.ROLE_DEFAULT))
       .stream().map(account -> {
+        System.out.println(account);
         SubAccountVO vo = new SubAccountVO();
         BeanUtils.copyProperties(account, vo);
         return vo;

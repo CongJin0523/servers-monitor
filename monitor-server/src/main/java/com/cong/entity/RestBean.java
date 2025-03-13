@@ -1,9 +1,11 @@
 package com.cong.entity;
 
+import com.cong.entity.VO.response.ClientSimpleVO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 public record RestBean<T>(int code, T data, String msg) {
   public static <T> RestBean<T> success(T data) {
@@ -22,6 +24,10 @@ public record RestBean<T>(int code, T data, String msg) {
 
   public static <T> RestBean<T> forbidden(String msg) {
     return fail(403, msg);
+  }
+
+  public static <T> RestBean<T> noPermission() {
+    return fail(401, "no permission");
   }
 
   public String toJsonString() throws JsonProcessingException {

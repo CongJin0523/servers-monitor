@@ -44,6 +44,7 @@ public class SecurityConfiguration {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http
         .authorizeHttpRequests(conf -> conf
+            .requestMatchers("/terminal/**").permitAll()
             .requestMatchers("/api/auth/**", "/error").permitAll()
             .requestMatchers("/monitor/**").permitAll()
             .requestMatchers("/api/user/sub/**").hasRole(Const.ROLE_ADMIN)
